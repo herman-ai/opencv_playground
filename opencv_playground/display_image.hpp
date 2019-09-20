@@ -9,6 +9,6 @@
 #ifndef display_image_hpp
 #define display_image_hpp
 
-int display_image(int argc, char** argv);
+int display_image();
 
 #endif /* display_image_hpp */

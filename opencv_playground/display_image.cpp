@@ -20,12 +20,11 @@
 using namespace cv;
 using namespace std;
 
-int display_image(int argc, char** argv) {
-    if (argc < 2) {
-        cout << "Fewer args than expected" << endl;
-        return -1;
-    }
-    Mat image = imread(argv[1], 0);
+int display_image() {
+    string fname;
+    cout << "Enter path to the image file : ";
+    cin >> fname;
+    Mat image = imread(fname, 0);
     if (image.empty()) {
         cout << "Could not load the image" << endl;
         return -1;
