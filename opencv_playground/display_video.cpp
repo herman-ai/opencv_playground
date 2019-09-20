@@ -16,16 +16,15 @@ using namespace cv;
 using namespace std;
 
 int g_slider_position = 0;
-int g_run = 1, g_dontset = 0;
+int g_run = 1;
 
 VideoCapture g_cap;
 
 void onTrackBarSlide(int pos, void *) {
     g_cap.set(CAP_PROP_POS_FRAMES, pos);
-    if (!g_dontset) {
-        g_run = 1;
-    }
-    g_dontset = 0;
+    cout << "In the event handler" << endl;
+    g_run = 1;
+
 }
 
 int display_video() {
@@ -37,6 +36,7 @@ int display_video() {
     cin >> fname;
     
     namedWindow("VIDEO", WINDOW_AUTOSIZE);
+    namedWindow("OUT", WINDOW_AUTOSIZE);
     
     
     g_cap.open(fname);
@@ -52,7 +52,7 @@ int display_video() {
     cout << "Height of each frame = " << tmph << endl;
     
     
-    Mat frame;
+    Mat frame, oframe;
 
     while (!done) {
         if (g_run != 0) {
@@ -65,9 +65,14 @@ int display_video() {
             }
             setTrackbarPos("Position", "VIDEO", pos);
             g_run--;
-            g_dontset = 1;
         }
         imshow("VIDEO", frame);
+        GaussianBlur(frame, oframe, Size(5,5), 3, 3);
+        GaussianBlur(oframe, oframe, Size(5,5), 3, 3);
+        GaussianBlur(oframe, oframe, Size(5,5), 3, 3);
+        GaussianBlur(oframe, oframe, Size(55,55), 3, 3);
+        
+        imshow("OUT", oframe);
         char ch = waitKey(33);
         ch = tolower(ch);
         switch (ch) {
@@ -86,5 +91,7 @@ int display_video() {
         }
     }
     destroyWindow("VIDEO");
+    destroyWindow("OUT");
+    waitKey(1); // hack to make the window close on destroyWindow call
     return 0;
 }
