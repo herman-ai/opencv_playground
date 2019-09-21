@@ -7,8 +7,7 @@
 //
 
 #include <iostream>
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/opencv.hpp"
 
 #include "display_video.hpp"
 
@@ -17,6 +16,7 @@ using namespace std;
 
 int g_slider_position = 0;
 int g_run = 1;
+int g_sampling = 1;
 
 VideoCapture g_cap;
 
@@ -28,6 +28,8 @@ void onTrackBarSlide(int pos, void *) {
 }
 
 int display_video() {
+    
+    VideoWriter writer;
     
     string fname;
     bool done = false;
@@ -44,8 +46,13 @@ int display_video() {
     int frames = (int) g_cap.get(CAP_PROP_FRAME_COUNT);
     int tmpw = (int) g_cap.get(CAP_PROP_FRAME_WIDTH);
     int tmph = (int) g_cap.get(CAP_PROP_FRAME_HEIGHT);
+    int fps = (int) g_cap.get(CAP_PROP_FPS);
+    
+    
+    writer.open("/Users/hermansahota/Downloads/SampleVideo_output.mp4", g_cap.get(CAP_PROP_FOURCC), fps, Size(tmpw, tmph));
     
     createTrackbar("Position", "VIDEO", &g_slider_position, frames, onTrackBarSlide);
+    createTrackbar("Sampler", "VIDEO", &g_sampling, 8);
     
     cout << "Number of frames = " << frames << endl;
     cout << "Width of each frame = " << tmpw << endl;
@@ -67,12 +74,20 @@ int display_video() {
             g_run--;
         }
         imshow("VIDEO", frame);
-        GaussianBlur(frame, oframe, Size(5,5), 3, 3);
-        GaussianBlur(oframe, oframe, Size(5,5), 3, 3);
-        GaussianBlur(oframe, oframe, Size(5,5), 3, 3);
-        GaussianBlur(oframe, oframe, Size(55,55), 3, 3);
+        GaussianBlur(frame, oframe, Size(5,5), 3);
+        GaussianBlur(oframe, oframe, Size(5,5), 3);
+        GaussianBlur(oframe, oframe, Size(5,5), 3);
+        GaussianBlur(oframe, oframe, Size(5,5), 3);
+        for (int i=1; i<g_sampling; i*=2) {
+            pyrDown(oframe, oframe);
+        }
+//        cvtCol1or(oframe, oframe, COLOR_BGR2GRAY);
+//        Canny(frame, oframe, 10, 100);
+//        logPolar(oframe, oframe, Point2f(frame.rows/2, frame.cols/2), 40, WARP_FILL_OUTLIERS);
+//        pyrDown(oframe, oframe);
         
         imshow("OUT", oframe);
+        writer << frame;
         char ch = waitKey(33);
         ch = tolower(ch);
         switch (ch) {
